@@ -393,7 +393,5 @@ namespace GameSwiper
                 return false;
             }
         }
-
-        //}
     }
 }
