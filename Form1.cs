@@ -11,6 +11,8 @@ namespace GameSwiper
         public const int FieldCellHeight = 25;
         public Random rand = new Random();
         public int[,] Field;
+        public int FlagCounter;
+        public int StepCounter;
         public Form1()
         {
 
@@ -29,19 +31,98 @@ namespace GameSwiper
                 {
                     return;
                 }
-                else
+
+                else if (PlayGround[e.ColumnIndex, e.RowIndex].Value == null)
                 {
+                    StepCounter--;
                     PlayGround[e.ColumnIndex, e.RowIndex].Style.BackColor = Color.Gray;
                     PlayGround[e.ColumnIndex, e.RowIndex].Style.ForeColor = Color.White;
                     PlayGround[e.ColumnIndex, e.RowIndex].Style.SelectionBackColor = Color.Gray;
                     PlayGround[e.ColumnIndex, e.RowIndex].Style.SelectionForeColor = Color.White;
                     PlayGround[e.ColumnIndex, e.RowIndex].Value = Field[e.ColumnIndex, e.RowIndex];
-                    if ((int) PlayGround[e.ColumnIndex, e.RowIndex].Value == 0)
+                    if (Field[e.ColumnIndex, e.RowIndex] < 0)
                     {
-                        if (ExistCellTopLeft(e.ColumnIndex, e.RowIndex) && PlayGround[e.ColumnIndex - 1, e.RowIndex - 1].Value != "F")
+                        PlayGround[e.ColumnIndex, e.RowIndex].Value = "Mine";
+                        MessageBox.Show("You lost", "Lost", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        ResetGame_Click(sender, e);
+                    }
+                    else if (StepCounter == 0)
+                    {
+                        MessageBox.Show("You win", "win", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        ResetGame_Click(sender, e);
+                    }
+                    else if (Field[e.ColumnIndex, e.RowIndex] == 0)
+                    {
+                        if (ExistCellTop(e.RowIndex, e.ColumnIndex))
                         {
-                            DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex - 1, e.RowIndex - 1, (e.X - FieldCellWidth), e.Y - FieldCellHeight, e);
-                            DataGridView1_CellMouseClick(sender, e1);
+                            if (PlayGround[e.ColumnIndex, e.RowIndex - 1].Value == null)
+                            {
+                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex, e.RowIndex - 1, (e.X - FieldCellWidth), e.Y, e);
+                                DataGridView1_CellMouseClick(sender, e1);
+                            }
+                        }
+
+                        if (ExistCellTopRight(e.RowIndex, e.ColumnIndex))
+                        {
+                            if (PlayGround[e.ColumnIndex + 1, e.RowIndex - 1].Value == null)
+                            {
+                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex + 1, e.RowIndex - 1, (e.X - FieldCellWidth), e.Y + FieldCellHeight, e);
+                                DataGridView1_CellMouseClick(sender, e1);
+                            }
+                        }
+
+                        if (ExistCellRight(e.RowIndex, e.ColumnIndex))
+                        {
+                            if (PlayGround[e.ColumnIndex + 1, e.RowIndex].Value == null)
+                            {
+                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex + 1, e.RowIndex, (e.X + FieldCellWidth), e.Y, e);
+                                DataGridView1_CellMouseClick(sender, e1);
+                            }
+                        }
+
+                        if (ExistCellBottomRight(e.RowIndex, e.ColumnIndex))
+                        {
+                            if (PlayGround[e.ColumnIndex + 1, e.RowIndex + 1].Value == null)
+                            {
+                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex + 1, e.RowIndex + 1, (e.X + FieldCellWidth), e.Y + FieldCellHeight, e);
+                                DataGridView1_CellMouseClick(sender, e1);
+                            }
+                        }
+
+                        if (ExistCellBottom(e.RowIndex, e.ColumnIndex))
+                        {
+                            if (PlayGround[e.ColumnIndex, e.RowIndex + 1].Value == null)
+                            {
+                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex, e.RowIndex + 1, (e.X), e.Y + FieldCellHeight, e);
+                                DataGridView1_CellMouseClick(sender, e1);
+                            }
+                        }
+
+                        if (ExistCellBottomLeft(e.RowIndex, e.ColumnIndex))
+                        {
+                            if (PlayGround[e.ColumnIndex - 1, e.RowIndex + 1].Value == null)
+                            {
+                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex - 1, e.RowIndex + 1, (e.X - FieldCellWidth), e.Y + FieldCellHeight, e);
+                                DataGridView1_CellMouseClick(sender, e1);
+                            }
+                        }
+
+                        if (ExistCellLeft(e.RowIndex, e.ColumnIndex))
+                        {
+                            if (PlayGround[e.ColumnIndex - 1, e.RowIndex].Value == null)
+                            {
+                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex - 1, e.RowIndex, (e.X), e.Y - FieldCellHeight, e);
+                                DataGridView1_CellMouseClick(sender, e1);
+                            }
+                        }
+
+                        if (ExistCellTopLeft(e.RowIndex, e.ColumnIndex))
+                        {
+                            if (PlayGround[e.ColumnIndex - 1, e.RowIndex - 1].Value == null)
+                            {
+                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex - 1, e.RowIndex - 1, (e.X - FieldCellWidth), e.Y - FieldCellHeight, e);
+                                DataGridView1_CellMouseClick(sender, e1);
+                            }
                         }
                     }
                 }
@@ -51,10 +132,14 @@ namespace GameSwiper
                 if (PlayGround[e.ColumnIndex, e.RowIndex].Value == "F")
                 {
                     PlayGround[e.ColumnIndex, e.RowIndex].Value = null;
+                    FlagCounter++;
+                    FlagCounter_TextBox.Text = FlagCounter.ToString();
                 }
-                else if (PlayGround[e.ColumnIndex, e.RowIndex].Value == null)
+                else if (PlayGround[e.ColumnIndex, e.RowIndex].Value == null && FlagCounter > 0)
                 {
                     PlayGround[e.ColumnIndex, e.RowIndex].Value = "F";
+                    FlagCounter--;
+                    FlagCounter_TextBox.Text = FlagCounter.ToString();
                 }
             }
         }
@@ -85,7 +170,9 @@ namespace GameSwiper
                 FieldCols = 16;
                 FieldMines = 99;
             }
-
+            StepCounter = FieldRows * FieldCols - FieldMines;
+            FlagCounter = FieldMines;
+            FlagCounter_TextBox.Text = FieldMines.ToString();
             SetFieldMines();
             PlayGround.Rows.Clear();
             PlayGround.Columns.Clear();
@@ -148,7 +235,7 @@ namespace GameSwiper
             //Mines.Sort();
             foreach (var m in Mines)
             {
-                Field[m[0,0], m[0,1]] = -50; //Number for mine
+                Field[m[0, 0], m[0, 1]] = -50; //Number for mine
 
                 //Доавление счетчика кол-ва мин во все ячейки вокруг мины по часовой стрелке
                 if (ExistCellTop(m[0, 0], m[0, 1]))
@@ -212,5 +299,101 @@ namespace GameSwiper
         {
             this.Close();
         }
+
+        //public partial class Form1 : Form
+        //{
+
+        int x;
+        int y;
+        public bool ExistCellTop(int x, int y)
+        {
+            if ((x - 1) >= 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool ExistCellTopRight(int x, int y)
+        {
+            if ((x - 1) >= 0 && (y + 1) < FieldCols)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public bool ExistCellRight(int x, int y)
+        {
+            if ((y + 1) < FieldCols)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool ExistCellBottomRight(int x, int y)
+        {
+            if ((x + 1) < FieldRows && (y + 1) < FieldCols)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool ExistCellBottom(int x, int y)
+        {
+            if ((x + 1) < FieldRows)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public bool ExistCellBottomLeft(int x, int y)
+        {
+            if ((x + 1) < FieldRows && (y - 1) >= 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public bool ExistCellLeft(int x, int y)
+        {
+            if ((y - 1) >= 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public bool ExistCellTopLeft(int x, int y)
+        {
+            if ((x - 1) >= 0 && (y - 1) >= 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        //}
     }
 }

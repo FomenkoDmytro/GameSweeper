@@ -40,6 +40,8 @@ namespace GameSwiper
             Difficulty = new ComboBox();
             ResetGameButtom = new Button();
             ExitButtom = new Button();
+            FlagCounter_Label = new Label();
+            FlagCounter_TextBox = new TextBox();
             ((System.ComponentModel.ISupportInitialize)PlayGround).BeginInit();
             SuspendLayout();
             // 
@@ -71,7 +73,7 @@ namespace GameSwiper
             Column1.MinimumWidth = 6;
             Column1.Name = "Column1";
             Column1.ReadOnly = true;
-            Column1.Width = FieldCellWidth;
+            Column1.Width = 125;
             // 
             // Difficulty_Label
             // 
@@ -112,11 +114,30 @@ namespace GameSwiper
             ExitButtom.UseVisualStyleBackColor = true;
             ExitButtom.Click += ExitButtom_Click;
             // 
+            // FlagCounter_Label
+            // 
+            FlagCounter_Label.AutoSize = true;
+            FlagCounter_Label.Location = new Point(13, 94);
+            FlagCounter_Label.Name = "FlagCounter_Label";
+            FlagCounter_Label.Size = new Size(91, 20);
+            FlagCounter_Label.TabIndex = 7;
+            FlagCounter_Label.Text = "Flag counter";
+            // 
+            // FlagCounter_TextBox
+            // 
+            FlagCounter_TextBox.Enabled = false;
+            FlagCounter_TextBox.Location = new Point(9, 126);
+            FlagCounter_TextBox.Name = "FlagCounter_TextBox";
+            FlagCounter_TextBox.Size = new Size(119, 27);
+            FlagCounter_TextBox.TabIndex = 8;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(949, 522);
+            Controls.Add(FlagCounter_TextBox);
+            Controls.Add(FlagCounter_Label);
             Controls.Add(ExitButtom);
             Controls.Add(ResetGameButtom);
             Controls.Add(Difficulty);
@@ -139,5 +160,7 @@ namespace GameSwiper
         private Button ResetGameButtom;
         private DataGridViewButtonColumn Column1;
         private Button ExitButtom;
+        private Label FlagCounter_Label;
+        private TextBox FlagCounter_TextBox;
     }
 }
