@@ -39,8 +39,8 @@ namespace GameSwiper
                     PlayGround[e.ColumnIndex, e.RowIndex].Style.ForeColor = Color.White;
                     PlayGround[e.ColumnIndex, e.RowIndex].Style.SelectionBackColor = Color.Gray;
                     PlayGround[e.ColumnIndex, e.RowIndex].Style.SelectionForeColor = Color.White;
-                    PlayGround[e.ColumnIndex, e.RowIndex].Value = Field[e.ColumnIndex, e.RowIndex];
-                    if (Field[e.ColumnIndex, e.RowIndex] < 0)
+                    PlayGround[e.ColumnIndex, e.RowIndex].Value = Field[e.RowIndex, e.ColumnIndex];
+                    if (Field[e.RowIndex, e.ColumnIndex] < 0)
                     {
                         PlayGround[e.ColumnIndex, e.RowIndex].Value = "Mine";
                         MessageBox.Show("You lost", "Lost", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -51,7 +51,7 @@ namespace GameSwiper
                         MessageBox.Show("You win", "win", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         ResetGame_Click(sender, e);
                     }
-                    else if (Field[e.ColumnIndex, e.RowIndex] == 0)
+                    else if (Field[e.RowIndex, e.ColumnIndex] == 0)
                     {
                         if (ExistCellTop(e.RowIndex, e.ColumnIndex))
                         {
@@ -211,7 +211,7 @@ namespace GameSwiper
         //Generate Mines and Field
         public void SetFieldMines()
         {
-            Field = new int[FieldCols, FieldRows];
+            Field = new int[FieldRows, FieldCols];
             List<int[,]> Mines = new List<int[,]>(FieldMines);
             int RandMinesCount = 0;
 
@@ -303,15 +303,17 @@ namespace GameSwiper
         //public partial class Form1 : Form
         //{
 
-        int x;
-        int y;
+
         public bool ExistCellTop(int x, int y)
         {
             if ((x - 1) >= 0)
             {
                 return true;
             }
-            return false;
+            else
+            {
+                return false;
+            }
         }
 
         public bool ExistCellTopRight(int x, int y)
