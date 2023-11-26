@@ -1,3 +1,5 @@
+using Microsoft.VisualBasic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
@@ -13,6 +15,7 @@ namespace GameSwiper
         public int[,] Field;
         public int FlagCounter;
         public int StepCounter;
+        public int ResetIndicator;
         public Form1()
         {
 
@@ -22,153 +25,198 @@ namespace GameSwiper
             Difficulty.SelectedIndex = 0;
 
         }
+        public void FieldMouseLeftClick(int x, int y)
+        {
+
+            if (PlayGround[y, x].Value == "F")
+            {
+                return;
+            }
+
+            else if (PlayGround[y, x].Value == null)
+            {
+                StepCounter--;
+                PlayGround[y, x].Style.BackColor = Color.Gray;
+                PlayGround[y, x].Style.ForeColor = Color.White;
+                PlayGround[y, x].Style.SelectionBackColor = Color.Gray;
+                PlayGround[y, x].Style.SelectionForeColor = Color.White;
+                PlayGround[y, x].Value = Field[x, y];
+                if (Field[x, y] < 0)
+                {
+                    PlayGround[y, x].Value = "Mine";
+                    MessageBox.Show("You lost", "Lost", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ResetIndicator = 1;
+                    return;
+                }
+                if (StepCounter == 0)
+                {
+                    MessageBox.Show("You won", "won", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ResetIndicator = 1;
+                    return;
+                }
+
+
+                if (Field[x, y] == 0)
+                {
+                    if (IsCellExist(x - 1, y))
+                    {
+                        if (PlayGround[y, x - 1].Value == null)
+                        {
+                            FieldMouseLeftClick(x - 1, y);
+                        }
+                    }
+
+                    if (IsCellExist(x - 1, y + 1))
+                    {
+                        if (PlayGround[y + 1, x - 1].Value == null)
+                        {
+                            FieldMouseLeftClick(x + 1, y + 1);
+                        }
+                    }
+
+                    if (IsCellExist(x, y + 1))
+                    {
+                        if (PlayGround[y + 1, x].Value == null)
+                        {
+                            FieldMouseLeftClick(x, y + 1);
+                        }
+                    }
+
+                    if (IsCellExist(x + 1, y + 1))
+                    {
+                        if (PlayGround[y + 1, x + 1].Value == null)
+                        {
+                            FieldMouseLeftClick(x + 1, y + 1);
+                        }
+                    }
+
+                    if (IsCellExist(x + 1, y))
+                    {
+                        if (PlayGround[y, x + 1].Value == null)
+                        {
+                            FieldMouseLeftClick(x + 1, y);
+                        }
+                    }
+
+                    if (IsCellExist(x + 1, y - 1))
+                    {
+                        if (PlayGround[y - 1, x + 1].Value == null)
+                        {
+                            FieldMouseLeftClick(x + 1, y - 1);
+                        }
+                    }
+
+                    if (IsCellExist(x, y - 1))
+                    {
+                        if (PlayGround[y - 1, x].Value == null)
+                        {
+                            FieldMouseLeftClick(x, y - 1);
+                        }
+                    }
+
+                    if (IsCellExist(x - 1, y - 1))
+                    {
+                        if (PlayGround[y - 1, x - 1].Value == null)
+                        {
+                            FieldMouseLeftClick(x - 1, y - 1);
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+        public void FieldMouseRightClick(int x, int y)
+        {
+            if (PlayGround[y, x].Value == "F")
+            {
+                PlayGround[y, x].Value = null;
+                FlagCounter++;
+                FlagCounter_TextBox.Text = FlagCounter.ToString();
+            }
+            else if (PlayGround[y, x].Value == null && FlagCounter > 0)
+            {
+                PlayGround[y, x].Value = "F";
+                FlagCounter--;
+                FlagCounter_TextBox.Text = FlagCounter.ToString();
+            }
+        }
 
         private void DataGridView1_CellMouseClick(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
-                if (PlayGround[e.ColumnIndex, e.RowIndex].Value == "F")
+                FieldMouseLeftClick(e.RowIndex, e.ColumnIndex);
+                if (ResetIndicator == 1)
                 {
-                    return;
+                    ResetGame_Click(sender, e);
                 }
-
-                else if (PlayGround[e.ColumnIndex, e.RowIndex].Value == null)
-                {
-                    StepCounter--;
-                    PlayGround[e.ColumnIndex, e.RowIndex].Style.BackColor = Color.Gray;
-                    PlayGround[e.ColumnIndex, e.RowIndex].Style.ForeColor = Color.White;
-                    PlayGround[e.ColumnIndex, e.RowIndex].Style.SelectionBackColor = Color.Gray;
-                    PlayGround[e.ColumnIndex, e.RowIndex].Style.SelectionForeColor = Color.White;
-                    PlayGround[e.ColumnIndex, e.RowIndex].Value = Field[e.RowIndex, e.ColumnIndex];
-                    if (Field[e.RowIndex, e.ColumnIndex] < 0)
-                    {
-                        PlayGround[e.ColumnIndex, e.RowIndex].Value = "Mine";
-                        MessageBox.Show("You lost", "Lost", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        ResetGame_Click(sender, e);
-                    }
-                    else if (StepCounter == 0)
-                    {
-                        MessageBox.Show("You win", "win", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        ResetGame_Click(sender, e);
-                    }
-                    else if (Field[e.RowIndex, e.ColumnIndex] == 0)
-                    {
-                        if (ExistCellTop(e.RowIndex, e.ColumnIndex))
-                        {
-                            if (PlayGround[e.ColumnIndex, e.RowIndex - 1].Value == null)
-                            {
-                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex, e.RowIndex - 1, (e.X - FieldCellWidth), e.Y, e);
-                                DataGridView1_CellMouseClick(sender, e1);
-                            }
-                        }
-
-                        if (ExistCellTopRight(e.RowIndex, e.ColumnIndex))
-                        {
-                            if (PlayGround[e.ColumnIndex + 1, e.RowIndex - 1].Value == null)
-                            {
-                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex + 1, e.RowIndex - 1, (e.X - FieldCellWidth), e.Y + FieldCellHeight, e);
-                                DataGridView1_CellMouseClick(sender, e1);
-                            }
-                        }
-
-                        if (ExistCellRight(e.RowIndex, e.ColumnIndex))
-                        {
-                            if (PlayGround[e.ColumnIndex + 1, e.RowIndex].Value == null)
-                            {
-                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex + 1, e.RowIndex, (e.X + FieldCellWidth), e.Y, e);
-                                DataGridView1_CellMouseClick(sender, e1);
-                            }
-                        }
-
-                        if (ExistCellBottomRight(e.RowIndex, e.ColumnIndex))
-                        {
-                            if (PlayGround[e.ColumnIndex + 1, e.RowIndex + 1].Value == null)
-                            {
-                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex + 1, e.RowIndex + 1, (e.X + FieldCellWidth), e.Y + FieldCellHeight, e);
-                                DataGridView1_CellMouseClick(sender, e1);
-                            }
-                        }
-
-                        if (ExistCellBottom(e.RowIndex, e.ColumnIndex))
-                        {
-                            if (PlayGround[e.ColumnIndex, e.RowIndex + 1].Value == null)
-                            {
-                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex, e.RowIndex + 1, (e.X), e.Y + FieldCellHeight, e);
-                                DataGridView1_CellMouseClick(sender, e1);
-                            }
-                        }
-
-                        if (ExistCellBottomLeft(e.RowIndex, e.ColumnIndex))
-                        {
-                            if (PlayGround[e.ColumnIndex - 1, e.RowIndex + 1].Value == null)
-                            {
-                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex - 1, e.RowIndex + 1, (e.X - FieldCellWidth), e.Y + FieldCellHeight, e);
-                                DataGridView1_CellMouseClick(sender, e1);
-                            }
-                        }
-
-                        if (ExistCellLeft(e.RowIndex, e.ColumnIndex))
-                        {
-                            if (PlayGround[e.ColumnIndex - 1, e.RowIndex].Value == null)
-                            {
-                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex - 1, e.RowIndex, (e.X), e.Y - FieldCellHeight, e);
-                                DataGridView1_CellMouseClick(sender, e1);
-                            }
-                        }
-
-                        if (ExistCellTopLeft(e.RowIndex, e.ColumnIndex))
-                        {
-                            if (PlayGround[e.ColumnIndex - 1, e.RowIndex - 1].Value == null)
-                            {
-                                DataGridViewCellMouseEventArgs e1 = new DataGridViewCellMouseEventArgs(e.ColumnIndex - 1, e.RowIndex - 1, (e.X - FieldCellWidth), e.Y - FieldCellHeight, e);
-                                DataGridView1_CellMouseClick(sender, e1);
-                            }
-                        }
-                    }
-                }
+                return;
             }
+
+
             else if (e.Button == MouseButtons.Right)
             {
-                if (PlayGround[e.ColumnIndex, e.RowIndex].Value == "F")
-                {
-                    PlayGround[e.ColumnIndex, e.RowIndex].Value = null;
-                    FlagCounter++;
-                    FlagCounter_TextBox.Text = FlagCounter.ToString();
-                }
-                else if (PlayGround[e.ColumnIndex, e.RowIndex].Value == null && FlagCounter > 0)
-                {
-                    PlayGround[e.ColumnIndex, e.RowIndex].Value = "F";
-                    FlagCounter--;
-                    FlagCounter_TextBox.Text = FlagCounter.ToString();
-                }
+                FieldMouseRightClick(e.RowIndex, e.ColumnIndex);
+                return;
             }
         }
 
 
         private void ResetGame_Click(object sender, EventArgs e)
         {
+            ResetIndicator = 0;
             Difficulty_SelectedIndexChanged(sender, e);
         }
 
         public void Difficulty_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (Difficulty.SelectedIndex == 0) //Easy level
+            switch (Difficulty.SelectedIndex)
             {
-                FieldRows = 9;
-                FieldCols = 9;
-                FieldMines = 10;
-            }
-            else if (Difficulty.SelectedIndex == 1) //Normal level
-            {
-                FieldRows = 16;
-                FieldCols = 16;
-                FieldMines = 40;
-            }
-            else if (Difficulty.SelectedIndex == 2) // Hard level
-            {
-                FieldRows = 30;
-                FieldCols = 16;
-                FieldMines = 99;
+                case 0:
+                    FieldRows = 9;
+                    FieldCols = 9;
+                    FieldMines = 10;
+                    break;
+                case 1:
+                    FieldRows = 16;
+                    FieldCols = 16;
+                    FieldMines = 40;
+                    break;
+                case 2:
+                    FieldRows = 30;
+                    FieldCols = 16;
+                    FieldMines = 99;
+                    break;
+                case 3:
+                    int UserFieldRows;
+                    int UserFieldColumns;
+                    int UserFieldMiness;
+
+                    string CustomRows;
+                    string CustomCols;
+                    string CustomMines;
+
+                    do
+                    {
+                        CustomRows = Interaction.InputBox("Write number of rows", "number of rows", "");
+                    } while (!int.TryParse(CustomRows, out UserFieldRows));
+
+                    do
+                    {
+                        CustomCols = Interaction.InputBox("Write number of columns", "number of columns", "");
+                    } while (!int.TryParse(CustomCols, out UserFieldColumns));
+
+                    do
+                    {
+                        CustomMines = Interaction.InputBox("Write number of mines", "number of mines", "");
+                        int.TryParse(CustomMines, out UserFieldMiness);
+                    } while (!int.TryParse(CustomMines, out UserFieldMiness) | (UserFieldMiness > UserFieldRows * UserFieldColumns));
+                    FieldRows = UserFieldRows;
+                    FieldCols = UserFieldColumns;
+                    FieldMines = UserFieldMiness;
+                    break;
             }
             StepCounter = FieldRows * FieldCols - FieldMines;
             FlagCounter = FieldMines;
@@ -181,18 +229,16 @@ namespace GameSwiper
         }
         public void SetFieldSize()
         {
+            DataGridViewCellStyle dataGridViewCellStyle = new DataGridViewCellStyle();
+            dataGridViewCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle.BackColor = Color.White;
+            dataGridViewCellStyle.ForeColor = Color.Black;
+            dataGridViewCellStyle.SelectionBackColor = Color.White;
+            dataGridViewCellStyle.SelectionForeColor = Color.Black;
+
             for (int i = PlayGround.ColumnCount; i < FieldCols; i++)
             {
-                DataGridViewCellStyle dataGridViewCellStyle = new DataGridViewCellStyle();
-                dataGridViewCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                dataGridViewCellStyle.BackColor = Color.White;
-                dataGridViewCellStyle.ForeColor = Color.Black;
-                dataGridViewCellStyle.SelectionBackColor = Color.White;
-                dataGridViewCellStyle.SelectionForeColor = Color.Black;
-
                 DataGridViewButtonColumn ColumnAdd = new DataGridViewButtonColumn();
-                ColumnAdd.Name = "Column" + (i + 1);
-                ColumnAdd.HeaderText = "Column" + (i + 1);
                 ColumnAdd.DefaultCellStyle = dataGridViewCellStyle;
                 ColumnAdd.Width = FieldCellWidth;
                 ColumnAdd.FlatStyle = FlatStyle.Popup;
@@ -212,188 +258,85 @@ namespace GameSwiper
         public void SetFieldMines()
         {
             Field = new int[FieldRows, FieldCols];
-            List<int[,]> Mines = new List<int[,]>(FieldMines);
             int RandMinesCount = 0;
+            int minex;
+            int miney;
 
-            do
+            while (RandMinesCount < FieldMines)
             {
-                int[,] mine = new int[1, 2]; //почему я не могу это объявление вынести за пределы do, чтобы не забивать память??? Если за пределами do - считает что один и тот же массив
 
-                mine[0, 0] = rand.Next(0, FieldRows);
-                mine[0, 1] = rand.Next(0, FieldCols);
-                //mine[0, 0] = 4;
-                //mine[0, 1] = 8;
+                minex = rand.Next(0, FieldRows);
+                miney = rand.Next(0, FieldCols);
 
-
-                if (MinesDublicateCheck(Mines, mine))
+                if (Field[minex, miney] >= 0)
                 {
-                    Mines.Add(mine);
+                    AddMine(minex, miney);
                     RandMinesCount++;
                 }
-            } while (RandMinesCount < FieldMines);
-
-            //Mines.Sort();
-            foreach (var m in Mines)
-            {
-                Field[m[0, 0], m[0, 1]] = -50; //Number for mine
-
-                //Доавление счетчика кол-ва мин во все ячейки вокруг мины по часовой стрелке
-                if (ExistCellTop(m[0, 0], m[0, 1]))
-                {
-                    Field[m[0, 0] - 1, m[0, 1]]++;
-                }
-
-                if (ExistCellTopRight(m[0, 0], m[0, 1]))
-                {
-                    Field[m[0, 0] - 1, m[0, 1] + 1]++;
-                }
-
-                if (ExistCellRight(m[0, 0], m[0, 1]))
-                {
-                    Field[m[0, 0], m[0, 1] + 1]++;
-                }
-
-                if (ExistCellBottomRight(m[0, 0], m[0, 1]))
-                {
-                    Field[m[0, 0] + 1, m[0, 1] + 1]++;
-                }
-
-                if (ExistCellBottom(m[0, 0], m[0, 1]))
-                {
-                    Field[m[0, 0] + 1, m[0, 1]]++;
-                }
-
-                if (ExistCellBottomLeft(m[0, 0], m[0, 1]))
-                {
-                    Field[m[0, 0] + 1, m[0, 1] - 1]++;
-                }
-
-                if (ExistCellLeft(m[0, 0], m[0, 1]))
-                {
-                    Field[m[0, 0], m[0, 1] - 1]++;
-                }
-
-                if (ExistCellTopLeft(m[0, 0], m[0, 1]))
-                {
-                    Field[m[0, 0] - 1, m[0, 1] - 1]++;
-                }
-            }
-
+            };
         }
 
-        public bool MinesDublicateCheck(List<int[,]> MinesStack, int[,] mine)
+        public void AddMine(int x, int y)
         {
-            foreach (var m in MinesStack)
-            {
-                //if (m.Equals(mine)) поч????
-                if (m[0, 0] == mine[0, 0] && m[0, 1] == mine[0, 1])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
 
+            Field[x, y] = -50; //Number for mine
+
+            //Доавление счетчика кол-ва мин во все ячейки вокруг мины по часовой стрелке
+            if (IsCellExist(x - 1, y))
+            {
+                Field[x - 1, y]++;
+            }
+
+            if (IsCellExist(x - 1, y + 1))
+            {
+                Field[x - 1, y + 1]++;
+            }
+
+            if (IsCellExist(x, y + 1))
+            {
+                Field[x, y + 1]++;
+            }
+
+            if (IsCellExist(x + 1, y + 1))
+            {
+                Field[x + 1, y + 1]++;
+            }
+
+            if (IsCellExist(x + 1, y))
+            {
+                Field[x + 1, y]++;
+            }
+
+            if (IsCellExist(x + 1, y - 1))
+            {
+                Field[x + 1, y - 1]++;
+            }
+
+            if (IsCellExist(x, y - 1))
+            {
+                Field[x, y - 1]++;
+            }
+
+            if (IsCellExist(x - 1, y - 1))
+            {
+                Field[x - 1, y - 1]++;
+            }
+        }
 
         private void ExitButtom_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
-        //public partial class Form1 : Form
-        //{
 
-
-        public bool ExistCellTop(int x, int y)
+        public bool IsCellExist(int x, int y)
         {
-            if ((x - 1) >= 0)
+            if (x >= 0 && x < FieldRows &&
+                y >= 0 && y < FieldCols)
             {
                 return true;
             }
-            else
-            {
-                return false;
-            }
-        }
-
-        public bool ExistCellTopRight(int x, int y)
-        {
-            if ((x - 1) >= 0 && (y + 1) < FieldCols)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        public bool ExistCellRight(int x, int y)
-        {
-            if ((y + 1) < FieldCols)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public bool ExistCellBottomRight(int x, int y)
-        {
-            if ((x + 1) < FieldRows && (y + 1) < FieldCols)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public bool ExistCellBottom(int x, int y)
-        {
-            if ((x + 1) < FieldRows)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        public bool ExistCellBottomLeft(int x, int y)
-        {
-            if ((x + 1) < FieldRows && (y - 1) >= 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        public bool ExistCellLeft(int x, int y)
-        {
-            if ((y - 1) >= 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        public bool ExistCellTopLeft(int x, int y)
-        {
-            if ((x - 1) >= 0 && (y - 1) >= 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
     }
 }

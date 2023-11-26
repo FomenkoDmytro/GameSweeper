@@ -56,6 +56,7 @@ namespace GameSwiper
             PlayGround.ReadOnly = true;
             PlayGround.RowHeadersWidth = 51;
             PlayGround.RowTemplate.Height = 29;
+            PlayGround.ScrollBars = ScrollBars.None;
             PlayGround.Size = new Size(650, 486);
             PlayGround.TabIndex = 0;
             PlayGround.CellMouseClick += DataGridView1_CellMouseClick;
@@ -87,7 +88,7 @@ namespace GameSwiper
             // Difficulty
             // 
             Difficulty.DropDownStyle = ComboBoxStyle.DropDownList;
-            Difficulty.Items.AddRange(new object[] { "Easy", "Normal", "Hard" });
+            Difficulty.Items.AddRange(new object[] { "Easy", "Normal", "Hard", "Custom" });
             Difficulty.Location = new Point(9, 24);
             Difficulty.Name = "Difficulty";
             Difficulty.Size = new Size(119, 28);
